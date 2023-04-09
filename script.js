@@ -3,6 +3,8 @@ const itemInput = document.getElementById('item-input');
 const itemList = document.getElementById('item-list');
 const clearBtn = document.getElementById('clear');
 const itemFilter = document.getElementById('filter');
+const formBtn = itemForm.querySelector('button')
+let isEditMode = false;
 
 function displayItems() {
     const itemsFromStorage = getItemsFromStorage()
@@ -20,6 +22,22 @@ function onAddItemSubmit(e) {
         alert('Please add an Item')
         return;
     }
+
+    //Edit Items
+    if (isEditMode) {
+        const itemToEdit = itemList.querySelector('.edit-mode')
+        removeItemFromStorage(itemToEdit.textContent)
+        itemToEdit.classList.remove('edit-mode')
+        itemToEdit.remove()
+        isEditMode = false
+    } else {
+        if (checkIfItemExist(newitem)) {
+            alert('That item Already Exists')
+            return
+        }
+    }
+
+    //Add new item
     addItemToDOM(newitem)
     addItemToStorage(newitem)
     checkUI()
@@ -71,7 +89,27 @@ function getItemsFromStorage() {
 function onClickItem(e) {
     if (e.target.parentElement.classList.contains('remove-item')) {
         removeItem(e.target.parentElement.parentElement)
+    } else {
+        setitemToEdit(e.target)
     }
+}
+
+function checkIfItemExist(item) {
+    const itemsFromStorage = getItemsFromStorage()
+    if (itemsFromStorage.includes(item)) {
+        return true
+    } else {
+        return false
+    }
+}
+
+function setitemToEdit(item) {
+    isEditMode = true;
+    itemList.querySelectorAll('li').forEach((i) => i.classList.remove('edit-mode'))
+    item.classList.add('edit-mode')
+    formBtn.innerHTML = '<i class="fa-solid fa-pen"></i> updateItem'
+    formBtn.style.backgroundColor = '#228B22'
+    itemInput.value = item.textContent;
 }
 
 function removeItem(item) {
@@ -115,6 +153,7 @@ function filterItem(e) {
 }
 
 function checkUI() {
+    itemInput.value = '';
     const items = itemList.querySelectorAll('li')
     if (items.length === 0) {
         clearBtn.style.display = 'none'
@@ -123,6 +162,10 @@ function checkUI() {
         clearBtn.style.display = 'block'
         itemFilter.style.display = 'block'
     }
+
+    formBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add item'
+    formBtn.style.backgroundColor = '#333'
+    isEditMode = false
 }
 
 function init() {

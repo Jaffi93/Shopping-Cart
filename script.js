@@ -68,22 +68,36 @@ function getItemsFromStorage() {
     return itemsFromStorage;
 }
 
-function removeItem(e) {
-    e.preventDefault();
+function onClickItem(e) {
     if (e.target.parentElement.classList.contains('remove-item')) {
-        if (confirm('Are you sure>')) {
-            e.target.parentElement.parentElement.remove();
-            checkUI()
-        }
+        removeItem(e.target.parentElement.parentElement)
     }
+}
+
+function removeItem(item) {
+    if (confirm('Are you sure>')) {
+        item.remove()
+
+        removeItemFromStorage(item.textContent)
+        checkUI()
+    }
+}
+
+function removeItemFromStorage(item) {
+    let itemsFromStorage = getItemsFromStorage()
+
+    itemsFromStorage = itemsFromStorage.filter(i => i !== item)
+
+    localStorage.setItem('items', JSON.stringify(itemsFromStorage))
 
 }
 
 function clearItem() {
     while (itemList.firstChild) {
-        console.log(itemList.firstChild)
         itemList.removeChild(itemList.firstChild)
     }
+
+    localStorage.removeItem('items')
     checkUI()
 }
 
@@ -114,7 +128,7 @@ function checkUI() {
 function init() {
     //Add event listener
     itemForm.addEventListener('submit', onAddItemSubmit)
-    itemList.addEventListener('click', removeItem)
+    itemList.addEventListener('click', onClickItem)
     clearBtn.addEventListener('click', clearItem)
     itemFilter.addEventListener('input', filterItem)
     document.addEventListener('DOMContentLoaded', displayItems)
